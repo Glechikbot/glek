@@ -48,14 +48,13 @@ def show_main_tasks(message):
     if message.chat.id == USER_ID:
         all_tasks = load_main_tasks()
         done = load_done_tasks()
-        result = "📝 *Список задач:*
-
-"
+        lines = ["📝 *Список задач:*", ""]
         for task in all_tasks:
             if task in done:
-                result += f"~{task}~ ✅\n"
+                lines.append(f"~{task}~ ✅")
             else:
-                result += f"{task}\n"
+                lines.append(task)
+        result = "\n".join(lines)
         bot.send_message(message.chat.id, result, parse_mode="Markdown")
 
 @bot.message_handler(func=lambda msg: "задача" in msg.text.lower() and "зроблена" in msg.text.lower())
