@@ -59,18 +59,16 @@ def show_main_tasks(message):
     result = "\n".join(lines)
     bot.send_message(message.chat.id, result, parse_mode="Markdown")
 
-@bot.message_handler(func=lambda msg: msg.text.strip().endswith("+"))
-def mark_done_by_name(message):
-    task_text = message.text.strip()[:-1].strip()
+@bot.message_handler(func=lambda msg: msg.text.strip().startswith("++"))
+def mark_done_double_plus(message):
+    task_text = message.text.strip()[2:].strip()
     all_tasks = load_main_tasks()
     done = load_done_tasks()
-
     matched = None
     for task in all_tasks:
         if task_text.lower() in task.lower():
             matched = task
             break
-
     if matched:
         done.add(matched)
         save_done_tasks(done)
@@ -78,20 +76,20 @@ def mark_done_by_name(message):
     else:
         bot.send_message(message.chat.id, "🤷‍♂️ Не знайшов такої задачі.")
 
-@bot.message_handler(func=lambda msg: msg.text.lower().startswith("додати:"))
-def add_new_task(message):
-    task_text = message.text.split("додати:", 1)[1].strip()
+@bot.message_handler(func=lambda msg: msg.text.strip().startswith("+"))
+def add_new_task_plus(message):
+    task_text = message.text.strip()[1:].strip()
     if not task_text:
-        bot.send_message(message.chat.id, "⚠️ Напиши задачу після 'додати:'.")
+        bot.send_message(message.chat.id, "⚠️ Напиши задачу після '+'.")
         return
     tasks = load_main_tasks()
     tasks.append(task_text)
     save_main_tasks(tasks)
     bot.send_message(message.chat.id, f"➕ Додано задачу: *{task_text}*", parse_mode="Markdown")
 
-@bot.message_handler(func=lambda msg: msg.text.lower().startswith("видалити:"))
-def delete_task(message):
-    task_text = message.text.split("видалити:", 1)[1].strip()
+@bot.message_handler(func=lambda msg: msg.text.strip().startswith("-"))
+def delete_task_minus(message):
+    task_text = message.text.strip()[1:].strip()
     tasks = load_main_tasks()
     new_tasks = [t for t in tasks if task_text.lower() not in t.lower()]
     if len(new_tasks) == len(tasks):
