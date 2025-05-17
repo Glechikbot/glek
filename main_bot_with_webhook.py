@@ -8,7 +8,7 @@ import os
 TOKEN = "7943821305:AAE1bhBzaJl2toCAlUgXF56samBQZTxAwGg"
 bot = telebot.TeleBot(TOKEN)
 
-WEBHOOK_URL = "https://dashboard.render.com/web/srv-d0k4e57fte5s738bgqfg"
+WEBHOOK_URL = "https://glek.onrender.com"
 
 app = Flask(__name__)
 
