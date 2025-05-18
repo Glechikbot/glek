@@ -9,7 +9,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 TOKEN = "7943821305:AAE1bhBzaJl2toCAlUgXF56samBQZTxAwGg"
 WEBHOOK_URL = "https://glek.onrender.com/"
 
-# Авторизація Google Sheets через змінну оточення
+# Авторизація Google Sheets через ENV
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 creds_data = json.loads(os.environ["GOOGLE_CREDENTIALS"])
 creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_data, scope)
@@ -17,7 +17,6 @@ client = gspread.authorize(creds)
 
 SHEET_NAME = "TaskBot"
 SHEET_TAB = "Аркуш1"
-
 sheet = client.open(SHEET_NAME).worksheet(SHEET_TAB)
 
 app = Flask(__name__)
@@ -58,13 +57,21 @@ def start(message):
 
 @bot.message_handler(func=lambda msg: msg.text.strip().lower() == "задачі")
 def list_tasks(message):
-    rows = get_tasks()
-    result = ["📝 *Список задач:*", ""]
-    for r in rows:
-        done = str(r["Done"]).strip().lower() == "true"
-        line = f"~{r['Task']}~ ✅" if done else r["Task"]
-        result.append(line)
-    bot.send_message(message.chat.id, "\n".join(result), parse_mode="Markdown")
+    try:
+        rows = get_tasks()
+        if not rows:
+            bot.send_message(message.chat.id, "⚠️ Задач поки немає.")
+            return
+        result = ["📝 *Список задач:*", ""]
+        for r in rows:
+            done = str(r["Done"]).strip().lower() == "true"
+            task = r["Task"].replace("-", "\-").replace(".", "\.").replace("(", "\(").replace(")", "\)").replace("!", "\!").replace("~", "\~")
+            line = f"~{task}~ ✅" if done else task
+            result.append(line)
+        bot.send_message(message.chat.id, "\n".join(result), parse_mode="MarkdownV2")
+    except Exception as e:
+        print("🔥 Error in 'задачі':", e)
+        bot.send_message(message.chat.id, "❌ Помилка при завантаженні задач.")
 
 @bot.message_handler(func=lambda msg: msg.text.strip().startswith("++"))
 def done_task(message):
