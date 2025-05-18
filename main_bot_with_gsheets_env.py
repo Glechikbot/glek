@@ -70,6 +70,7 @@ def list_tasks(message):
             result.append(line)
         bot.send_message(message.chat.id, "\n".join(result), parse_mode="MarkdownV2")
     except Exception as e:
+        bot.send_message(message.chat.id, f"❌ Помилка: {e}")
         print("🔥 Error in 'задачі':", e)
         bot.send_message(message.chat.id, "❌ Помилка при завантаженні задач.")
 
