@@ -1,6 +1,4 @@
 
-# main_bot_with_gsheets.py
-
 import os
 import telebot
 import gspread
@@ -10,7 +8,6 @@ from oauth2client.service_account import ServiceAccountCredentials
 TOKEN = "7943821305:AAE1bhBzaJl2toCAlUgXF56samBQZTxAwGg"
 WEBHOOK_URL = "https://glek.onrender.com/"
 
-# Авторизація Google Sheets
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
 client = gspread.authorize(creds)
@@ -20,7 +17,6 @@ SHEET_TAB = "Аркуш1"
 
 sheet = client.open(SHEET_NAME).worksheet(SHEET_TAB)
 
-# Flask app
 app = Flask(__name__)
 bot = telebot.TeleBot(TOKEN)
 
@@ -32,15 +28,14 @@ def receive_update():
     return "!", 200
 
 def get_tasks():
-    data = sheet.get_all_records()
-    return data
+    return sheet.get_all_records()
 
 def add_task(text):
     sheet.append_row([text, "FALSE"])
 
 def delete_task(text):
     records = sheet.get_all_values()
-    for idx, row in enumerate(records[1:], start=2):  # skip header
+    for idx, row in enumerate(records[1:], start=2):
         if text.lower() in row[0].lower():
             sheet.delete_rows(idx)
             return True
@@ -48,7 +43,7 @@ def delete_task(text):
 
 def mark_task_done(text):
     records = sheet.get_all_values()
-    for idx, row in enumerate(records[1:], start=2):  # skip header
+    for idx, row in enumerate(records[1:], start=2):
         if text.lower() in row[0].lower():
             sheet.update_cell(idx, 2, "TRUE")
             return row[0]
@@ -63,9 +58,8 @@ def list_tasks(message):
     rows = get_tasks()
     result = ["📝 *Список задач:*", ""]
     for r in rows:
-done = str(r["Done"]).strip().lower() == "true"
-line = f"~{r['Task']}~ ✅" if done else r["Task"]
-
+        done = str(r["Done"]).strip().lower() == "true"
+        line = f"~{r['Task']}~ ✅" if done else r["Task"]
         result.append(line)
     bot.send_message(message.chat.id, "\n".join(result), parse_mode="Markdown")
 
