@@ -16,7 +16,7 @@ creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", sco
 client = gspread.authorize(creds)
 
 SHEET_NAME = "TaskBot"
-SHEET_TAB = "Лист1"
+SHEET_TAB = "Аркуш1"
 
 sheet = client.open(SHEET_NAME).worksheet(SHEET_TAB)
 
