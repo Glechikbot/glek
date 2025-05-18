@@ -63,7 +63,9 @@ def list_tasks(message):
     rows = get_tasks()
     result = ["📝 *Список задач:*", ""]
     for r in rows:
-        line = f"~{r['Task']}~ ✅" if r["Done"] == "TRUE" else r["Task"]
+done = str(r["Done"]).strip().lower() == "true"
+line = f"~{r['Task']}~ ✅" if done else r["Task"]
+
         result.append(line)
     bot.send_message(message.chat.id, "\n".join(result), parse_mode="Markdown")
 
